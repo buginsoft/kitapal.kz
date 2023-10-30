@@ -1,0 +1,7 @@
+storage/app/public/files/
+storage/framework/cache/
+storage/framework/sessions/
+storage/app/image/
+vendor/
+.env
+filename.tar.gz

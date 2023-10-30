@@ -1,0 +1,51 @@
+#deliver_block {
+    display: none;
+}
+.promocode__box {
+    margin: 0px 0px 11px -2px;
+}
+.promocode__box .promocode__item {
+    min-width: 235px;
+    margin-right: 12px;
+}
+.promocode__box .promocode__item .invalid-feedback strong{
+    line-height: 1.1;
+}
+.promocode__box .promocode__item .invalid-feedback {
+    font-size: 15px;
+    color: #f02b2b;
+}
+.form-control.promo{
+    width: 90%;
+}
+.promocode__box .promo__button {
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%), #8E2976;
+    color: #fff;
+    border-radius: 4px;
+    padding: 4px 13px 0px 13px;
+    max-height: 34px;
+    transition: all 0.8s;
+    margin-left: -25px;
+}
+.promocode__box .promo__button:hover {
+    background: #80256b;
+}
+.promocode__box .promo__button:active {
+    top: 2px;
+}
+@media (max-width: 1200px) {
+    .promocode__box .promocode__item {
+        min-width: 242px;
+        margin-right: 8px;
+    }
+    .promocode__box .promo__button {
+        font-size: 13px;
+        padding: 7px 5px 6px 5px;
+        margin-left: -56px;
+    }
+    .form-control.promo {
+        width: 78%;
+        padding: 6px 7px;
+    }
+}
