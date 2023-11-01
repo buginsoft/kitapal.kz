@@ -474,8 +474,14 @@
                                 @endif
                             @endif
                             <!----------------------------------------------------------------------------------------->
-
-
+                            @if(isset($collection->banner_image))
+                                <div class="section-row">
+                                    <a href="{{ $collection->banner_url }}">
+                                        <img style="max-height: 100px;width: 100%;object-fit: cover;"
+                                             src="{{$collection->banner_image}}" alt="Изображение">
+                                    </a>
+                                </div>
+                            @endif
 
                             <div class="section-row">
                                 <p class="big-title">
@@ -701,5 +707,5 @@
             });
         }
     </script>
-    
+
 @endpush

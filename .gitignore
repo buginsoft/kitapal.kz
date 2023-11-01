@@ -1,7 +1,10 @@
-storage/app/public/files/
-storage/framework/cache/
-storage/framework/sessions/
-storage/app/image/
+storage/app/public/files/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/image/*
 vendor/
 .env
+.idea/
 filename.tar.gz
+storage/logs/
