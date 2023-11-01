@@ -95,7 +95,7 @@ class BasketController extends Controller
         $delivery_price['zakvadratom'] = $almatycourier[1]->price;
         $delivery_price['polygon3'] = $almatycourier[2]->price;
         $delivery_price['courierotheralmaty']= '1600';
-        $delivery_price['free']= '15000';
+        $delivery_price['free']= \App\Models\DeliveryPrice::where('type','free')->first();
 
         return ['data'=>
             [
