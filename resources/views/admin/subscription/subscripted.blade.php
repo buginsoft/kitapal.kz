@@ -7,6 +7,7 @@
     <table class="table table-bordered mb-4">
         <thead>
         <tr style="border: 1px">
+            <th>Имя</th>
             <th>Логин</th>
             <th>Тип</th>
             <th>Статус</th>
@@ -22,6 +23,12 @@
             <td>
                 <form action="" method="get">
                     <input type="text" name="user_name">
+                    <button type="submit">Искать</button>
+                </form>
+            </td>
+            <td>
+                <form action="" method="get">
+                    <input type="text" name="email">
                     <button type="submit">Искать</button>
                 </form>
             </td>
@@ -44,6 +51,7 @@
         @foreach ($list as $value)
             <tr>
                 <td title="{{$value->id}}">{{ $value->user?$value->user->user_name:'' }}</td>
+                <td title="{{$value->id}}">{{ $value->user?$value->user->email:'' }}</td>
                 <td>{{ $value->subscription->name_ru }}</td>
                 <td>{{ $value->active?'Активный':'Неактивный' }}</td>
                 <td>{{ $value->created_at }}</td>

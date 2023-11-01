@@ -35,5 +35,11 @@ class UserSubscription extends Model
                 });
 
         }
+        if ($request->has('email')) {
+                $query->whereHas('user', function($query) use ($request){
+                    $query->where('email', $request->email);
+                });
+
+        }
     }
 }
