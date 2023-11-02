@@ -61,7 +61,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Ссылка Баннера</label>
+                            <label>Ссылка Баннера * Если не указать ссылку баннера не будет</label>
                             <input type="text" class="form-control" name="banner_url"
                                    value="{{ !empty($collection) ? $collection->banner_url : old('banner_url') }}" />
                         </div>

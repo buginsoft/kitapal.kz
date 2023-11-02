@@ -474,7 +474,7 @@
                                 @endif
                             @endif
                             <!----------------------------------------------------------------------------------------->
-                            @if(isset($collection->banner_image))
+                            @if(isset($collection->banner_url))
                                 <div class="section-row">
                                     <a href="{{ $collection->banner_url }}">
                                         <img style="max-height: 100px;width: 100%;object-fit: cover;"
