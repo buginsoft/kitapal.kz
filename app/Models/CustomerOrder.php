@@ -47,11 +47,11 @@ class CustomerOrder extends Model
         if($total_price>2501 and  $total_price<5000){
             $deliveryprice=\App\Models\DeliveryPrice::where('type','почта')->where('description','2501-5000')->first()->price;
         }
-        else if($total_price>5001 and $total_price<10000){
-            $deliveryprice=\App\Models\DeliveryPrice::where('type','почта')->where('description','5001-10000')->first()->price;
+        else if($total_price>5001 and $total_price<9990){
+            $deliveryprice=\App\Models\DeliveryPrice::where('type','почта')->where('description','5001-9989')->first()->price;
         }
-        else if($total_price>10001 and $total_price<14999){
-            $deliveryprice=\App\Models\DeliveryPrice::where('type','почта')->where('description','10001-14999')->first()->price;
+        else if($total_price>9989 and $total_price<14999){
+            $deliveryprice=\App\Models\DeliveryPrice::where('type','почта')->where('description','9990-14999')->first()->price;
         }
         else if($total_price>15000){
             $deliveryprice=0;
