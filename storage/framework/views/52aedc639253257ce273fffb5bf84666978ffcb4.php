@@ -29,7 +29,6 @@
 
                         <div class="tab-content" id="pills-tabContent">
                             <div class="tab-pane fade show active" id="pills-russian" role="tabpanel" aria-labelledby="pills-russian-tab">
-
                                 <div class="form-group">
                                     <label>Название</label>
                                     <input type="text" class="form-control" name="collection_name_ru"
@@ -45,6 +44,25 @@
                             </div>
                         </div>
 
+                        <div class="custom-file-container" data-upload-id="BannerImage">
+                            <label>Баннер
+                                <a href="javascript:void(0)" class="custom-file-container__image-clear" title="Clear Image">
+                                    x
+                                </a>
+                            </label>
+                            <label class="custom-file-container__custom-file" >
+                                <input name="banner_image" type="file" class="custom-file-container__custom-file__custom-file-input" accept="image/*">
+                                <input type="hidden" name="MAX_FILE_SIZE" value="10485760" />
+                                <span class="custom-file-container__custom-file__custom-file-control"></span>
+                            </label>
+                            <div class="banner-file custom-file-container__image-preview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ссылка Баннера * Если не указать ссылку баннера не будет</label>
+                            <input type="text" class="form-control" name="banner_url"
+                                   value="<?php echo e(!empty($collection) ? $collection->banner_url : old('banner_url')); ?>" />
+                        </div>
                         <div class="form-group">
                             <label>Место</label>
                             <input type="text" class="form-control" name="sort_num"
@@ -80,6 +98,14 @@
                     let upload_file_poster = new FileUploadWithPreview('myFirstImage');
                     <?php if(!empty($collection)): ?>
                     $(".custom-file-container__image-preview").css({
+                        "background-image": "url(<?php echo e('https://kitapal.kz'.$collection->icon); ?>)"
+                    });
+                    <?php endif; ?>
+                </script>
+                    <script>
+                    let upload_file_banner = new FileUploadWithPreview('BannerImage');
+                    <?php if(!empty($collection)): ?>
+                    $(".banner-file").css({
                         "background-image": "url(<?php echo e('https://kitapal.kz'.$collection->icon); ?>)"
                     });
                     <?php endif; ?>

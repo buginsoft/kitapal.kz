@@ -7,6 +7,7 @@
     <table class="table table-bordered mb-4">
         <thead>
         <tr style="border: 1px">
+            <th>Имя</th>
             <th>Логин</th>
             <th>Тип</th>
             <th>Статус</th>
@@ -22,6 +23,12 @@
             <td>
                 <form action="" method="get">
                     <input type="text" name="user_name">
+                    <button type="submit">Искать</button>
+                </form>
+            </td>
+            <td>
+                <form action="" method="get">
+                    <input type="text" name="email">
                     <button type="submit">Искать</button>
                 </form>
             </td>
@@ -44,6 +51,7 @@
         <?php $__currentLoopData = $list; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <tr>
                 <td title="<?php echo e($value->id); ?>"><?php echo e($value->user?$value->user->user_name:''); ?></td>
+                <td title="<?php echo e($value->id); ?>"><?php echo e($value->user?$value->user->email:''); ?></td>
                 <td><?php echo e($value->subscription->name_ru); ?></td>
                 <td><?php echo e($value->active?'Активный':'Неактивный'); ?></td>
                 <td><?php echo e($value->created_at); ?></td>
@@ -88,4 +96,5 @@
         });
     </script>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('admin.layouts.table', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /var/www/vhosts/kitapal.kz/httpdocs/resources/views/admin/subscription/subscripted.blade.php ENDPATH**/ ?>

@@ -475,8 +475,14 @@
                                 <?php endif; ?>
                             <?php endif; ?>
                             <!----------------------------------------------------------------------------------------->
-
-
+                            <?php if(isset($collection->banner_url)): ?>
+                                <div class="section-row">
+                                    <a href="<?php echo e($collection->banner_url); ?>">
+                                        <img style="max-height: 100px;width: 100%;object-fit: cover;"
+                                             src="<?php echo e($collection->banner_image); ?>" alt="Изображение">
+                                    </a>
+                                </div>
+                            <?php endif; ?>
 
                             <div class="section-row">
                                 <p class="big-title">
@@ -704,7 +710,7 @@
             });
         }
     </script>
-    
+
 <?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('layouts.main', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /var/www/vhosts/kitapal.kz/httpdocs/resources/views/index.blade.php ENDPATH**/ ?>

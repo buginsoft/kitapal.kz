@@ -1,4 +1,5 @@
 storage/app/public/files/*
+storage/app/thumbnail/*
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
@@ -7,4 +8,4 @@ vendor/
 .env
 .idea/
 filename.tar.gz
-storage/logs/
+storage/logs/*
