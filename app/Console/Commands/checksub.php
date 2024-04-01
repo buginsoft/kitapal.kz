@@ -37,7 +37,6 @@ class checksub extends Command
      */
     public function handle()
     {
-
         foreach(\App\Models\UserSubscription::where('active',1)->get() as $subscription){
             if($subscription->final_date<\Carbon\Carbon::now()){
                 $subscription->active=0;
