@@ -1,14 +1,16 @@
 <?php namespace App\Classes;
 
+use Illuminate\Support\Env;
+
 class Robokassa
 {
 
     //боевой
-    //K2HnQ8B9gBPU92wgCYyX
-    //muTEd0k7Q1WsZUg86uNu
+    //iD3dF8S5UxOpzO1CsJy6
+    //I8FmpZSFj3StJ3ZM9j2L
     //тест
-    //cMmp2S2oyMCbCr6Q8C1O
-    //HM6WeXvdhEB1L0uZ15pK
+    //F0Iok8Y3Y0L2eqNtxenf
+    //aNrCfU66p8F1um4HgQCy
     public function getLink($amount , $order_id)
     {
         $IsTest = 0;

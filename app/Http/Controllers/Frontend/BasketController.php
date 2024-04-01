@@ -190,7 +190,7 @@ class BasketController extends Controller
             dd("для электронной книги заполнять адрес необязательно ");
         }
     }
-    
+
     //Китапты 1 ге кимиту
     public function decreaseItemQuantity(Request $request){
         if(\Auth::user()){

@@ -1,8 +1,8 @@
 <?php
 
 use Pusher\Pusher;
-use Auth;
-use Cart;
+use Illuminate\Support\Facades\Auth;
+use Gloudemans\Shoppingcart\Facades\Cart;
 
 if (! function_exists('send_push')) {
     function send_push($data)
