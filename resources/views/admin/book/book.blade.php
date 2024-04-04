@@ -22,9 +22,9 @@
             </button>
         </form>
 
-        <form action="/import" method="post" enctype="multipart/form-data" class="form-input-file-book">
+        <form action="/import" method="post" enctype="multipart/form-data" class="form-input-file-book" id="import-form">
             @csrf
-            <input name="books" type="file" id="file-input-book" style="">
+            <input name="books" type="file" id="file-input-book" style="" onchange="displayFileNameAndSubmit()">
             <label class="book-file-attach" for="file-input-book" title="Прикрепить файл">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="20" cy="20" r="20" fill="#3875EB"/>
@@ -39,6 +39,19 @@
                 </svg>
             </button>
         </form>
+
+
+        <script>
+            function displayFileNameAndSubmit() {
+                var inputFile = document.getElementById('file-input-book');
+                var fileNameDiv = document.getElementById('file-input-name');
+                fileNameDiv.innerHTML = inputFile.files[0].name;
+
+                // Отправка формы
+                document.getElementById('import-form').submit();
+            }
+        </script>
+
 
         <a href="/admin/book/create" class="align-self-center text-right mr-2" title="Добавить">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -86,6 +99,7 @@
                 <td><img class="book_photo" src="{{ $value->main_image()?$value->main_image()->path:'' }}" alt=""></td>
                 <td>{{ $value->book_name }}</td>
                 <td>
+
                     @foreach($value->genres as $key=>$genres)
                         <span class="text-green">
                                 <a href="/catalog/{{$genres->genre_id}}">{{$genres['genre_name_'.app()->getLocale()]}} @if(!$loop->last),@endif</a><br>
@@ -116,3 +130,5 @@
     </table>
     {{$book->links()}}
 @endsection
+
+

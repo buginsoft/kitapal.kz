@@ -154,6 +154,7 @@ class BookController extends Controller
     }
     public function edit($id)
     {
+        session(['previous-url' => redirect()->back()->getTargetUrl()]);
         $title = 'Изменить книгу';
         $action='/admin/book/'.$id;
         $authors = Author::where('translator',0)->pluck('name_kz')->toArray();
@@ -199,9 +200,7 @@ class BookController extends Controller
             $book_url = Helpers::getTranslatedSlugRu($request->book_name);
             if ($book_url != $book->book_url) {
                 if (\App\Models\Book::where('book_url', $book_url)->where('book_id', '<>', $id)->first()) {
-                    $dateTime = \DateTime::createFromFormat('U.u', microtime(true));
-                    $formattedMicrotime = $dateTime->format('His');
-                    $book_url = $book_url . $formattedMicrotime;
+                    $book_url = $book_url . \DateTime::createFromFormat('U.u', microtime(true));
                 }
             }
         }
@@ -261,7 +260,7 @@ class BookController extends Controller
             }
         }
 
-        return redirect("/admin/book");
+        return redirect(session('previous-url'));;
     }
     public function destroy($id)
     {

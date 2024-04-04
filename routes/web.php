@@ -228,7 +228,7 @@ Route::get('testredis', 'IndexController@testredis');
 Route::post('import', function () {
     \Excel::import(new \App\Imports\BookImport, request()->file('books'));
     return back();
-});
+})->name('import');
 
 
 Route::get('testemail', function () {

@@ -60,11 +60,22 @@ class BasketController extends Controller
         $user = Auth::user();
         $items = getCartContent();
 
+        // Обновление цен в корзине
+        foreach ($items as $item) {
+            $book = \App\Models\Book::find($item->attributes->book_id);
+            // Получаем обычную цену книги
+            $regularPrice = $book->getPrice($item->attributes->type);
+            // Обновляем цену в корзине, если цена изменилась
+            if ($item->price != $regularPrice) {
+                Cart::update($item->id, [
+                    'price' => $regularPrice,
+                ]);
+            }
+        }
+
         //--------------------------------------Проверка цен книг-------------
         foreach ($items as $item) {
-
             $book = \App\Models\Book::find($item->attributes->book_id);
-
             if ($book->available == 0) {
                 if ($item->attributes->type != 'ebook') {
                     $notify[] = ['error', 'Книги ' . $book->book_name . ' нет в наличий'];
@@ -72,7 +83,6 @@ class BasketController extends Controller
                 }
             }
             if ($item->price != $book->getPrice($item->attributes->type)) {
-
                 $notify[] = ['error', 'У книги ' . $book->book_name . ' цена отличается. Цена книги ' . $book->getPrice($item->attributes->type) . ' У вас в корзине оно по цене ' . $item->price . '  Удалите из корзины и добавьте сново'];
                 return back()->withNotify($notify);
             }
@@ -106,6 +116,8 @@ class BasketController extends Controller
             return view('checkout.nonregistred_checkout', compact('cities', 'items', 'othercities', 'almatycourier', 'free', 'order'));
         }
     }
+
+
 
     public function deliveryaddress(Request $request)
     {
