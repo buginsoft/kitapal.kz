@@ -64,6 +64,13 @@
                                         <form action="\buy-subscription" method="post">
                                             @csrf
                                             <input type="hidden" name="subscription_id" value="{{$subscription->id}}">
+                                            <div class="form-check">
+                                                <input class="form-check-input" name="recurring" type="checkbox" value={{true}} id="flexCheckDefault">
+                                                <label class="form-check-label" for="flexCheckDefault">
+                                                    Подписаться
+                                                    (ставя галочку вы даете согласие на подключение периодических платежей)
+                                                </label>
+                                            </div>
                                         <button type="submit" class="subscr-btn">@lang('subscription.buy')</button>
                                         </form>
                                     </div>

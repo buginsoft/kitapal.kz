@@ -13,9 +13,15 @@ class UserSubscription extends Model
     {
         return $this->belongsTo('App\Models\User','user_id');
     }
+
     public function subscription()
     {
         return $this->belongsTo('App\Models\Subscription','subscription_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(CustomerOrder::class,'id','subscription_id');
     }
 
     public function scopeFilter($query,$request)
@@ -27,19 +33,16 @@ class UserSubscription extends Model
             elseif ($request->type == 1) {
                 $query->whereDate('final_date', '>', now());
             }
-
         }
         if ($request->has('user_name')) {
-                $query->whereHas('user', function($query) use ($request){
-                    $query->where('user_name', $request->user_name);
-                });
-
+            $query->whereHas('user', function($query) use ($request){
+                $query->where('user_name', $request->user_name);
+            });
         }
         if ($request->has('email')) {
-                $query->whereHas('user', function($query) use ($request){
-                    $query->where('email', $request->email);
-                });
-
+            $query->whereHas('user', function($query) use ($request){
+                $query->where('email', $request->email);
+            });
         }
     }
 }

@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\Address;
+use App\Models\User;
+use App\Models\UserSubscription;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\CustomerOrder;
 use App\Models\OrderProducts;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Pusher\Pusher;
 use App\Models\UserBooks;
@@ -20,9 +23,9 @@ use App\Rules\CheckTotalPrice;
 use Auth;
 use App\Rules\checkTotalprice2;
 use App\Classes\Robokassa;
+
 class PaymentController extends Controller
 {
-
     public function paymentInit(Request $request)
     {
         /*if(request()->ip()!='62.32.84.178'){
@@ -31,6 +34,7 @@ class PaymentController extends Controller
         $user = Auth::user();
         $order = CustomerOrder::find($request->order_id);
         $cart = $this->getCart();
+
         //Курьер мен почтада буган келгенге дейн ценасын и типын сактап кояды . КУрьер мен почта болса delivery_type келмиды
         if ($request->has('delivery_type')) {
             if($request->delivery_type=='pickup'){
@@ -42,6 +46,7 @@ class PaymentController extends Controller
             }
         }
         $order->save();
+
         if ($order->delivery_type) {
             if ($order->delivery_type == 'post') {
                 $order->deliveryprice = $order->getPostPrice($cart->getTotal());
@@ -62,24 +67,22 @@ class PaymentController extends Controller
 
             $data['message'] = 'Новый заказ';
             $pusher->trigger('notify-channel', 'App\\Events\\Notify', $data);
-        }
-        else{
+        } else {
             //Если подарок
-            if ($request->has('is_gift'))
-            {
+            if ($request->has('is_gift')) {
                 $order->recipient_name = $request->recipient_name;
                 $order->recipient_email = $request->recipient_email;
                 $order->is_gift = $request->is_gift;
                 $order->gift_comment = $request->gift_comment;
                 $order->gift_token = Str::random(32);
-            }
-            else {
+            } else {
                 if ($request->fio != $user->user_name) {
                     $user->user_name = $request->fio;
                 }
                 if ($request->phone != $user->phone) {
                     $user->phone = $request->phone;
                 }
+
                 $user->save();
             }
             $order->is_seen = 1;
@@ -89,16 +92,15 @@ class PaymentController extends Controller
         $payment_amount = $request->price+$order->deliveryprice;
 
         /*---------------------------------------Проверка промокода----------------------------------------------------*/
-        if($order->promocode_id){
+        if($order->promocode_id) {
             $promocode = new \App\Classes\Promocode;
             $promocodeer=\App\Models\Promocodes::find($order->promocode_id);
             $result = $promocode->check($promocodeer->code);
 
-            if($result['success']=='true'){
+            if($result['success']=='true') {
                 $order->price_with_promocode=$cart->getTotal()*(100-$result['percentage'])/100;
                 $payment_amount = ($cart->getTotal()*(100-$result['percentage'])/100)+$order->deliveryprice;
-            }
-            else{
+            } else {
                 dd($result['error']);
             }
         }
@@ -113,15 +115,14 @@ class PaymentController extends Controller
         }
         $this->creteOrderProducts($request,$cart);
         $payment = new Robokassa;
+
         return redirect($payment->getLink($payment_amount , $order->order_id));
     }
 
-
-
-    //Создает orderproducts
-    public function creteOrderProducts(Request $request,$cart){
+    public function creteOrderProducts(Request $request,$cart)
+    {
         if(!request()->filled('is_gift')){
-            foreach ($cart->getContent() as  $item) {
+            foreach ($cart->getContent() as $item) {
                 OrderProducts::create([
                     'order_id' => $request->order_id,
                     'product_id' => $item['attributes']['book_id'],
@@ -130,8 +131,7 @@ class PaymentController extends Controller
                     'unitprice' => $item['price']
                 ]);
             }
-        }
-        else{
+        } else{
             OrderProducts::create([
                 'order_id' => $request->order_id,
                 'product_id' => $request->book[0],
@@ -142,13 +142,15 @@ class PaymentController extends Controller
         }
     }
 
-    //Вытаскивает корзину пользователя
-    public function getCart(){
+    public function getCart()
+    {
         $session_id = Auth::user()?Auth::user()->user_id:session()->getId();
+
         return \Cart::session($session_id);
     }
-    public function robokassasuccess(Request $request){
 
+    public function robokassasuccess(Request $request)
+    {
         \Log::channel('payments')->info($request->all());
         $payment = new Robokassa;
         $result = $payment->checkpayment();
@@ -215,7 +217,6 @@ class PaymentController extends Controller
         }
     }
 
-
     public function saveDeliveryPrice(Request $request)
     {
         $order = CustomerOrder::find($request->order_id);
@@ -228,12 +229,10 @@ class PaymentController extends Controller
                 } else {
                     return 'false';
                 }
-            }
-            else{
+            } else {
                 $order->update(['deliveryprice' => null]);
             }
-        }
-        else{
+        } else {
             return 'false';
         }
 
@@ -250,9 +249,9 @@ class PaymentController extends Controller
                 'paid'=>1,
                 'active'=>1
             ]);
+
             return back();
-        }
-        else {
+        } else {
             $user = Auth::user();
             $subscription = \App\Models\Subscription::find($request->subscription_id);
             $user_sub = \App\Models\UserSubscription::create([
@@ -260,21 +259,33 @@ class PaymentController extends Controller
                 'subscription_id'=>$request->subscription_id,
                 'final_date'=>\Carbon\Carbon::now()->addMonths($subscription->months)
             ]);
+
             $order = \App\Models\CustomerOrder::create([
-                'user_id'=>$user->user_id,
-                'is_delivered'=>0,
-                'total'=>$subscription->price,
-                'subscription_id'=>$user_sub->id
+                'user_id' => $user->user_id,
+                'is_delivered' => 0,
+                'total' => $subscription->price,
+                'subscription_id' => $user_sub->id,
             ]);
 
+            if ($request->recurring != null) {
+                $user_sub->update([
+                    'recurring' => $request->recurring,
+                    'debiting_date'=>\Carbon\Carbon::now()->addMonths($subscription->months)
+                ]);
+            }
+
             $payment = new Robokassa;
+
             return redirect($payment->getLink($subscription->price , $order->order_id));
         }
     }
-    public function successpage(){
+    public function successpage()
+    {
         return redirect('https://kitapal.kz/?paymentstatus=1');
     }
-    public function errorpage(){
+
+    public function errorpage()
+    {
         return redirect('https://kitapal.kz/?paymentstatus=0');
     }
 }

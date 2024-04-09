@@ -1,16 +1,17 @@
 <?php namespace App\Classes;
 
+use App\Models\UserSubscription;
 use Illuminate\Support\Env;
 
 class Robokassa
 {
+    /*боевой
+    iD3dF8S5UxOpzO1CsJy6
+    I8FmpZSFj3StJ3ZM9j2L
+    тест
+    F0Iok8Y3Y0L2eqNtxenf
+    aNrCfU66p8F1um4HgQCy*/
 
-    //боевой
-    //iD3dF8S5UxOpzO1CsJy6
-    //I8FmpZSFj3StJ3ZM9j2L
-    //тест
-    //F0Iok8Y3Y0L2eqNtxenf
-    //aNrCfU66p8F1um4HgQCy
     public function getLink($amount , $order_id)
     {
         $IsTest = 0;
@@ -20,13 +21,14 @@ class Robokassa
         $inv_id = $order_id;
         $inv_desc = "Книги";
         $out_summ = $amount;
+
         $crc = md5("$mrh_login:$out_summ:$inv_id:$mrh_pass1");
 
         return "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=".$mrh_login."&OutSum=".$out_summ."&InvoiceID=".$inv_id."&Description=".$inv_desc."&SignatureValue=".$crc."&IsTest=".$IsTest;
     }
 
-    public function checkpayment(){
-
+    public function checkpayment()
+    {
         $mrh_pass2 = env('robokassa_pass2');;
         $out_summ = $_REQUEST["OutSum"];
         $inv_id = $_REQUEST["InvId"];
@@ -34,13 +36,10 @@ class Robokassa
 
         $my_crc = strtoupper(md5("$out_summ:$inv_id:$mrh_pass2"));
 
-
-        if ($my_crc == $crc){
+        if ($my_crc == $crc) {
             return ['status'=>true,'inv_id'=>$inv_id];
-        }
-        else{
+        } else {
             return ['status'=>false];
         }
-
     }
 }

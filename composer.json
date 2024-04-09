@@ -14,9 +14,10 @@
         "bumbummen99/shoppingcart": "^2.8",
         "ckeditor/ckeditor": "4.*",
         "darryldecode/cart": "^4.1",
+        "doctrine/dbal": "^3.8",
         "fideloper/proxy": "^4.0",
         "fzaninotto/faker": "^1.9",
-        "guzzlehttp/guzzle": "^6.3",
+        "guzzlehttp/guzzle": "^7.5",
         "harimayco/laravel-menu": "^1.4",
         "jackmartin/telegram-logger-errors": "^1.6",
         "laravel/framework": "^6",
@@ -29,8 +30,7 @@
         "predis/predis": "^1.1",
         "pusher/pusher-php-server": "^4.1",
         "tymon/jwt-auth": "^1.0",
-        "unisharp/laravel-filemanager": "^2.0",
-      "ext-http": "*"
+        "unisharp/laravel-filemanager": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.5",
