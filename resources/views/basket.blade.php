@@ -101,7 +101,11 @@
                                     <div class="inf-basket">
                                         <span class="itog-prod">
                                             <span id="price{{$item->id}}">{{$item->price}}</span> ₸</span>
+                                        @if($book -> available != null)
                                             <a href="/checkout" class="btn-prod">@lang('basket.buy')</a>
+                                        @else
+                                            <h4 style="color: red"><b>@lang('book.not_available')</b></h4>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

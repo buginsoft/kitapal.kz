@@ -239,9 +239,5 @@ return [
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'Telegram' => Telegram\Bot\Laravel\Facades\Telegram::class,
         'TLE' => TLE\Facades\TLEFacade::class
-
-
-
     ],
-
 ];

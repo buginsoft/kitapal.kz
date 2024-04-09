@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\Book;
-use App\Models\Address;
-use App\Models\City;
-use App\Models\OrderAddress;
-use App\Models\DeliveryPrice;
-use Auth;
-use Cart;
 use App\Classes\Promocode;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
+use App\Models\Address;
+use App\Models\Book;
+use App\Models\City;
 use App\Models\CustomerOrder;
+use App\Models\DeliveryPrice;
+use App\Models\OrderAddress;
+use Gloudemans\Shoppingcart\Facades\Cart;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class BasketController extends Controller
 {
-    private $user ;
+    private $user;
+
     public function __construct()
     {
         $this->middleware('auth')->except(
@@ -39,96 +40,108 @@ class BasketController extends Controller
     public function index()
     {
         $items = getCartContent();
-        return view('basket',compact('items'));
+        return view('basket', compact('items'));
     }
 
     //Добавить книгу в корзину
-    public function addToBasket(Request $request){
-        if(!Auth::user() && $request->type=='ebook'){
-            return ['success'=>false, 'message'=>'Не авторизованы'];
+    public function addToBasket(Request $request)
+    {
+        if (!Auth::user() && $request->type == 'ebook') {
+            return ['success' => false, 'message' => 'Не авторизованы'];
         }
-        $book  = new Book;
-        $cart=$book->addBookToBasket($request->book_id,$request->type) ;
+        $book = new Book;
+        $cart = $book->addBookToBasket($request->book_id, $request->type);
 
-        return ['success'=>true,'cart'=>$cart ,'currentitemquantity'=>$cart->quantity];
+        return ['success' => true, 'cart' => $cart, 'currentitemquantity' => $cart->quantity];
     }
 
-    public function checkout(Request $request){
+    public function checkout(Request $request)
+    {
         $user = Auth::user();
         $items = getCartContent();
 
+        // Обновление цен в корзине
+        foreach ($items as $item) {
+            $book = \App\Models\Book::find($item->attributes->book_id);
+            // Получаем обычную цену книги
+            $regularPrice = $book->getPrice($item->attributes->type);
+            // Обновляем цену в корзине, если цена изменилась
+            if ($item->price != $regularPrice) {
+                Cart::update($item->id, [
+                    'price' => $regularPrice,
+                ]);
+            }
+        }
+
         //--------------------------------------Проверка цен книг-------------
-        foreach($items as $item){
-
-            $book=\App\Models\Book::find($item->attributes->book_id);
-
-            if($book->available==0){
-                if($item->attributes->type!='ebook') {
+        foreach ($items as $item) {
+            $book = \App\Models\Book::find($item->attributes->book_id);
+            if ($book->available == 0) {
+                if ($item->attributes->type != 'ebook') {
                     $notify[] = ['error', 'Книги ' . $book->book_name . ' нет в наличий'];
                     return back()->withNotify($notify);
                 }
             }
-            if($item->price!=$book->getPrice($item->attributes->type)){
-
-                $notify[] = ['error', 'У книги '.$book->book_name.' цена отличается. Цена книги '.$book->getPrice($item->attributes->type).' У вас в корзине оно по цене '.$item->price.'  Удалите из корзины и добавьте сново'];
+            if ($item->price != $book->getPrice($item->attributes->type)) {
+                $notify[] = ['error', 'У книги ' . $book->book_name . ' цена отличается. Цена книги ' . $book->getPrice($item->attributes->type) . ' У вас в корзине оно по цене ' . $item->price . '  Удалите из корзины и добавьте сново'];
                 return back()->withNotify($notify);
             }
         }
         //----------------------------------------------------
 
         $cities = City::all();
-        $othercities=DeliveryPrice::where('type','Казахстан курьер')->first();
-        $almatycourier=DeliveryPrice::where('type','Almaty')->get();
-        $free=DeliveryPrice::where('type','free')->first();
-        if($user) {
+        $othercities = DeliveryPrice::where('type', 'Казахстан курьер')->first();
+        $almatycourier = DeliveryPrice::where('type', 'Almaty')->get();
+        $free = DeliveryPrice::where('type', 'free')->first();
+        if ($user) {
             $address = Address::where('user_id', $user->user_id)->first();
         }
-        if($request->has('order_id')){
+        if ($request->has('order_id')) {
             $order_id = $request->order_id;
             $order = \App\Models\CustomerOrder::find($order_id);
-            if($order->address_id){
+            if ($order->address_id) {
                 $address = OrderAddress::find($order->address_id);
             }
-        }
-        else{
-            if($user) {
+        } else {
+            if ($user) {
                 $order = CustomerOrder::create(['user_id' => $user->user_id, 'total' => 0]);
-            }
-            else{
+            } else {
                 $order = CustomerOrder::create(['total' => 0]);
             }
         }
 
-        if($user) {
+        if ($user) {
             return view('checkout.checkout', compact('user', 'address', 'cities', 'items', 'othercities', 'almatycourier', 'free', 'order'));
-        }
-        else{
-            return view('checkout.nonregistred_checkout', compact(  'cities', 'items', 'othercities', 'almatycourier', 'free', 'order'));
+        } else {
+            return view('checkout.nonregistred_checkout', compact('cities', 'items', 'othercities', 'almatycourier', 'free', 'order'));
         }
     }
-    public function deliveryaddress(Request $request){
+
+
+
+    public function deliveryaddress(Request $request)
+    {
         $user = Auth::user();
         $payment = new  \App\Models\Payment;
         //$cities = City::all();
-        $othercities=DeliveryPrice::where('type','Казахстан курьер')->first();
-        $almatycourier=DeliveryPrice::where('type','Almaty')->get();
-        $free=DeliveryPrice::where('type','free')->first();
+        $othercities = DeliveryPrice::where('type', 'Казахстан курьер')->first();
+        $almatycourier = DeliveryPrice::where('type', 'Almaty')->get();
+        $free = DeliveryPrice::where('type', 'free')->first();
         $order = \App\Models\CustomerOrder::find($request->order_id);
-        $free_delivery =1;
-        if($user){
+        $free_delivery = 1;
+        if ($user) {
             $detailes = $payment->books_total_price2(\Cart::session(\Auth::user()->user_id)->getContent());
-            $user->user_name=$request->fio;
-            $user->phone=$request->phone;
+            $user->user_name = $request->fio;
+            $user->phone = $request->phone;
             $user->save();
             $order->user_id = $user->user_id;
-        }
-        else{
+        } else {
             $detailes = $payment->books_total_price2(\Cart::session(session()->getId())->getContent());
-            $order->user_name=$request->fio;
-            $order->user_phone=$request->phone;
+            $order->user_name = $request->fio;
+            $order->user_phone = $request->phone;
         }
 
-        $books_total_price=$detailes['total_price'];
+        $books_total_price = $detailes['total_price'];
 
         //Если это бумажная книга
         if ($request->has('delivery_type')) {
@@ -138,20 +151,17 @@ class BasketController extends Controller
             } else if ($request->delivery_type == 'pickup') {
                 $order->deliveryprice = 0;
             }
-        }
-        else{
+        } else {
             //Если подарок
-            if ($request->has('is_gift'))
-            {
+            if ($request->has('is_gift')) {
                 $order->recipient_name = $request->recipient_name;
                 $order->recipient_email = $request->recipient_email;
                 $order->is_gift = $request->is_gift;
-                if($request->has('gift_comment')){
+                if ($request->has('gift_comment')) {
                     $order->gift_comment = $request->gift_comment;
                 }
                 $order->gift_token = Str::random(32);
-            }
-            else {
+            } else {
                 $user->user_name = $request->fio;
                 $user->phone = $request->phone;
                 $user->save();
@@ -162,55 +172,54 @@ class BasketController extends Controller
         $order->order_comment = $request->order_comment;
         $order->save();
 
-        if($order->address_id){
+        if ($order->address_id) {
             $address = OrderAddress::find($order->address_id);
-        }
-        else{
-            $address = Address::where('user_id',$order->user_id)->first();
+        } else {
+            $address = Address::where('user_id', $order->user_id)->first();
         }
 
         $cart = getCart();
         $items = getCartContent();
         $count = 0;
 
-        foreach ($items as $item){
-            if($item->attributes->type=='paper'){
+        foreach ($items as $item) {
+            if ($item->attributes->type == 'paper') {
                 $count++;
             }
 
-            $book=\App\Models\Book::find($item->attributes->book_id);
-            if($book->free_delivery ==0){
-                $free_delivery=0;
+            $book = \App\Models\Book::find($item->attributes->book_id);
+            if ($book->free_delivery == 0) {
+                $free_delivery = 0;
             }
         }
-        if($count>0){
-            return view('checkout.checkout-delivery', compact('order','address','items','othercities','almatycourier','free','cart','free_delivery'));
-        }
-        else{
+        if ($count > 0) {
+            return view('checkout.checkout-delivery', compact('order', 'address', 'items', 'othercities', 'almatycourier', 'free', 'cart', 'free_delivery'));
+        } else {
             dd("для электронной книги заполнять адрес необязательно ");
         }
     }
 
     //Китапты 1 ге кимиту
-    public function decreaseItemQuantity(Request $request){
-        if(\Auth::user()){
+    public function decreaseItemQuantity(Request $request)
+    {
+        if (\Auth::user()) {
             Cart::session(Auth::user()->user_id);
-        }
-        else{
+        } else {
             Cart::session(session()->getId());
         }
 
-        Cart::update($request->row_id,[
+        Cart::update($request->row_id, [
             'quantity' => -1,
         ]);
         return Cart::get($request->row_id);
     }
+
     //Китапты 1 ге осиру
-    public function increaseItemQuantity(Request $request){
-        if(\Auth::user()){
+    public function increaseItemQuantity(Request $request)
+    {
+        if (\Auth::user()) {
             Cart::session(Auth::user()->user_id);
-        }
-        else{
+        } else {
             Cart::session(session()->getId());
         }
 
@@ -218,60 +227,64 @@ class BasketController extends Controller
 
         return Cart::get($request->row_id);
     }
+
     //Удалить с корзины
-    public function deletefrombasket($row_id){
-        if(\Auth::user()){
+    public function deletefrombasket($row_id)
+    {
+        if (\Auth::user()) {
             Cart::session(Auth::user()->user_id);
-        }
-        else{
+        } else {
             Cart::session(session()->getId());
         }
 
-        $bookquantity= Cart::get($row_id)->quantity;
+        $bookquantity = Cart::get($row_id)->quantity;
         $totalcount = Cart::getTotalQuantity();
-        $count=$totalcount-$bookquantity;
-        $bookprice= Cart::get($row_id)->price*$bookquantity;
+        $count = $totalcount - $bookquantity;
+        $bookprice = Cart::get($row_id)->price * $bookquantity;
         $totalprice = Cart::getTotal();
-        $price=$totalprice-$bookprice;
+        $price = $totalprice - $bookprice;
 
         Cart::remove($row_id);
 
-        return ['shoppingcartcount'=>$count,'totalprice'=>$price];
+        return ['shoppingcartcount' => $count, 'totalprice' => $price];
     }
 
-    public function getPostPrice(){
-        $post=DeliveryPrice::where('type','почта')->get();
-        $prices=[];
+    public function getPostPrice()
+    {
+        $post = DeliveryPrice::where('type', 'почта')->get();
+        $prices = [];
         $cart = getCart();
-        $price= $cart->getTotal();
+        $price = $cart->getTotal();
 
-        foreach($post as $item) {
+        foreach ($post as $item) {
             $prices[$item->description] = $item->price;
         }
-        foreach ($prices as $key=>$value) {
-            $array = explode('-',$key);
+        foreach ($prices as $key => $value) {
+            $array = explode('-', $key);
 
-            if($price>=intval($array[0]) && $price<=intval($array[1])){
+            if ($price >= intval($array[0]) && $price <= intval($array[1])) {
                 return $value;
             }
         }
     }
-    public function checkpromo(Request $request){
+
+    public function checkpromo(Request $request)
+    {
         $promo = new Promocode;
-        return $promo->check($request->promocode,$request->order_id);
+        return $promo->check($request->promocode, $request->order_id);
     }
 
-    public function saveDelPricenAddress(Request $request){
-        $validator = Validator::make($request->all(), ['city' => 'required','street' => 'required','home' => 'required']);
+    public function saveDelPricenAddress(Request $request)
+    {
+        $validator = Validator::make($request->all(), ['city' => 'required', 'street' => 'required', 'home' => 'required']);
         if ($validator->fails()) {
             return ['status' => false, 'error' => $validator->errors()];
         }
 
         $order = \App\Models\CustomerOrder::find($request->order_id);
-        if($order->address_id){
+        if ($order->address_id) {
             $address = \App\Models\OrderAddress::find($order->address_id);
-        }
-        else{
+        } else {
             $address = new \App\Models\OrderAddress;
         }
         $address->city = $request->city;
@@ -283,8 +296,8 @@ class BasketController extends Controller
         $address->post_index = $request->post_index;
         $address->save();
 
-        if(!$order->address_id){
-            $order->address_id=$address->id;
+        if (!$order->address_id) {
+            $order->address_id = $address->id;
         }
 
         $order->deliveryprice = $request->delivery_price;

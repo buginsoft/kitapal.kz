@@ -13,7 +13,8 @@
         $topMenu = Menu::getByName('Меню в шапке(kz)');
     }
 @endphp
-        <!DOCTYPE html>
+<!DOCTYPE html>
+<html>
 <head>
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >

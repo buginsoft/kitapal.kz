@@ -1,26 +1,30 @@
 <?php
 
 namespace App\Imports;
+
 use App\User;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 
 use Maatwebsite\Excel\Concerns\WithStartRow;
-class BookImport implements ToModel, WithChunkReading,WithBatchInserts
+
+class BookImport implements ToModel, WithChunkReading, WithBatchInserts
 
 {
     public function model(array $row)
     {
-       if($book = \App\Models\Book::find($row[0])) {
-
-            if($book->paperbook_price!=$row[5]){
+        if ($book = \App\Models\Book::find($row[0])) {
+            if ($book->book_name != $row[2]) {
+                $book->book_name = $row[2];
+            }
+            if ($book->paperbook_price != $row[5]) {
                 $book->paperbook_price = $row[5];
             }
-            if($book->ebook_price!=$row[6]){
+            if ($book->ebook_price != $row[6]) {
                 $book->ebook_price = $row[6];
             }
-            if($book->audio_price!=$row[7]){
+            if ($book->audio_price != $row[7]) {
                 $book->audio_price = $row[7];
             }
             $book->save();
@@ -31,6 +35,7 @@ class BookImport implements ToModel, WithChunkReading,WithBatchInserts
     {
         return 100;
     }
+
     public function batchSize(): int
     {
         return 100;
