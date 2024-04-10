@@ -61,17 +61,17 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <form action="\buy-subscription" method="post">
+                                        <form action="\buy-subscription" method="post" style="opacity: 0.3; user-select: none; cursor: not-allowed">
                                             @csrf
                                             <input type="hidden" name="subscription_id" value="{{$subscription->id}}">
                                             <div class="form-check">
-                                                <input class="form-check-input" name="recurring" type="checkbox" value={{true}} id="flexCheckDefault">
+                                                <input class="form-check-input" name="recurring" type="checkbox" value={{true}} id="flexCheckDefault" disabled>
                                                 <label class="form-check-label" for="flexCheckDefault">
                                                     Подписаться
                                                     (ставя галочку вы даете согласие на подключение периодических платежей)
                                                 </label>
                                             </div>
-                                        <button type="submit" class="subscr-btn">@lang('subscription.buy')</button>
+                                        <button type="submit" class="subscr-btn" disabled>@lang('subscription.buy')</button>
                                         </form>
                                     </div>
                                 </div>

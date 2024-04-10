@@ -7,6 +7,81 @@
             color: red;
         }
 
+        .popup {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+        .popup-bg {
+            background: rgba(0, 0, 0, 0.8);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .popup-dialog {
+            position: relative;
+            width: auto;
+            margin: .5rem;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            min-height: calc(100% - 1rem);
+        }
+        .popup-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            pointer-events: auto;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, .2);
+            border-radius: 0.5rem;
+            outline: 0;
+            padding: 1rem;
+        }
+        .popup-header, .popup-body {
+            padding: 1rem;
+        }
+        .popup-header {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .popup-close {
+            background: transparent;
+            border: transparent;
+            margin: 0;
+            display: flex;
+        }
+        .popup-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1rem;
+        }
+        .popup-text p {
+            font-size: 1.75rem;
+            font-weight: 400;
+            line-height: 135%;
+        }
+
+
+        @media (min-width: 576px) {
+            .popup-dialog {
+                min-height: calc(100% - 3.5rem);
+                max-width: 500px;
+                margin: 1.75rem auto;
+            }
+        }
+
         #bg_popup {
             background-color: rgba(0, 0, 0, 0.8);
             display: none;
@@ -282,7 +357,50 @@
         <div class="container-fluid">
             <div class="row">
                 @include('includes.booksearch')
-
+                <div class="popup" id="work-popup">
+                    <div class="popup-bg"></div>
+                    <div class="popup-dialog">
+                        <div class="popup-content">
+                            <div class="popup-header">
+                                <button class="popup-close"
+                                        onclick="document.getElementById('work-popup').style.display='none'; return false;">
+                                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.33398 9.33398L22.6673 22.6673M9.33398 22.6673L22.6673 9.33398" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="popup-body">
+                                <div class="popup-img">
+                                    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M53.5882 7.89419L4.83816 105.394C3.01941 109.163 4.59441 113.691 8.35379 115.51C9.36629 115.997 10.4632 116.26 11.5882 116.269H109.088C113.269 116.232 116.635 112.81 116.598 108.629C116.586 107.508 116.326 106.403 115.838 105.394L67.0882 7.89419C66.4572 6.64549 65.4922 5.59629 64.3005 4.86328C63.1089 4.13027 61.7372 3.74219 60.3382 3.74219C58.9391 3.74219 57.5675 4.13027 56.3758 4.86328C55.1841 5.59629 54.2191 6.64549 53.5882 7.89419Z" fill="#F2A600"/>
+                                        <path d="M50.2124 14.7383L4.46243 106.051C2.74681 109.585 4.22806 113.841 7.76243 115.557C8.69056 116.007 9.71243 116.251 10.7437 116.27H102.15C103.079 116.261 103.998 116.069 104.854 115.706C105.709 115.342 106.485 114.813 107.136 114.15C107.787 113.487 108.301 112.702 108.649 111.839C108.997 110.977 109.171 110.055 109.162 109.126C109.152 108.059 108.902 107.008 108.431 106.051L62.7749 14.7383C61.9709 13.0733 60.5388 11.7955 58.7933 11.1855C57.0479 10.5756 55.1317 10.6833 53.4656 11.4852C52.0464 12.1731 50.9004 13.3191 50.2124 14.7383Z" fill="#FFCC32"/>
+                                        <path opacity="0.2" d="M60.3382 31.8945C64.6507 31.8945 68.1195 35.3633 67.8382 39.3945L64.6507 84.3945C64.2945 86.7758 62.082 88.4258 59.7007 88.0695C58.7746 87.9332 57.917 87.5022 57.2551 86.8402C56.5931 86.1783 56.162 85.3207 56.0257 84.3945L52.8382 39.3945C52.557 35.3633 56.0257 31.8945 60.3382 31.8945ZM60.3382 91.8945C63.4414 91.8945 65.9632 94.4164 65.9632 97.5195C65.9632 100.623 63.4414 103.145 60.3382 103.145C57.2351 103.145 54.7132 100.623 54.7132 97.5195C54.7132 94.4164 57.2351 91.8945 60.3382 91.8945Z" fill="#424242"/>
+                                        <path d="M60.3382 31.8945C64.6507 31.8945 68.1195 35.3633 67.8382 39.3945L64.6507 84.3945C64.2945 86.7758 62.082 88.4258 59.7007 88.0695C58.7746 87.9332 57.917 87.5022 57.2551 86.8402C56.5931 86.1783 56.162 85.3207 56.0257 84.3945L52.8382 39.3945C52.557 35.3633 56.0257 31.8945 60.3382 31.8945Z" fill="url(#paint0_linear_629_3)"/>
+                                        <path d="M60.3379 103.145C63.4445 103.145 65.9629 100.626 65.9629 97.5195C65.9629 94.4129 63.4445 91.8945 60.3379 91.8945C57.2313 91.8945 54.7129 94.4129 54.7129 97.5195C54.7129 100.626 57.2313 103.145 60.3379 103.145Z" fill="url(#paint1_linear_629_3)"/>
+                                        <path d="M50.2127 21.5815C49.0877 22.9878 30.1502 60.019 30.1502 60.019C30.1502 60.019 28.4627 62.8316 30.8065 64.4253C32.9627 65.9253 34.9315 64.1441 35.7752 62.7378C36.619 61.3316 53.7752 28.144 54.4315 26.5503C54.994 24.7972 54.6002 22.8847 53.4002 21.4878C52.1815 20.3628 50.9627 20.5503 50.2127 21.5815Z" fill="#FFF170"/>
+                                        <path d="M29.4004 73.7148C31.109 73.7148 32.4941 72.3297 32.4941 70.6211C32.4941 68.9125 31.109 67.5273 29.4004 67.5273C27.6918 67.5273 26.3066 68.9125 26.3066 70.6211C26.3066 72.3297 27.6918 73.7148 29.4004 73.7148Z" fill="#FFF170"/>
+                                        <defs>
+                                            <linearGradient id="paint0_linear_629_3" x1="60.3382" y1="30.2539" x2="60.3382" y2="104.026" gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#424242"/>
+                                                <stop offset="1" stop-color="#212121"/>
+                                            </linearGradient>
+                                            <linearGradient id="paint1_linear_629_3" x1="60.3379" y1="33.9852" x2="60.3379" y2="107.757" gradientUnits="userSpaceOnUse">
+                                                <stop stop-color="#424242"/>
+                                                <stop offset="1" stop-color="#212121"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <div class="popup-text">
+                                    @lang('book.book_warning')
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        setTimeout("document.getElementById('work-popup').style.display='block'", 1000)
+                    </script>
+                </div>
                 <div id="bg_popup" class="popup__cont">
                     <div id="popup">
                         <div class="popup__box">

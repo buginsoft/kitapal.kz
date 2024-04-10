@@ -19,11 +19,11 @@
 
 @if($type=='paper')
     @if($book->available)
-        <div class="btn__box d-flex align-items-center justify-content-center">
-            <button onclick="buynow('paper',{{$book->book_id}})" class="btn btn-blue" type="button">@lang('book.buy_now')</button>
-            <button onclick="buy('paper',{{$book->book_id}})" class="btn btn-border-blue" type="button">
+        <div class="btn__box d-flex align-items-center justify-content-center" style="opacity: 0.3">
+            <button onclick="buynow('paper',{{$book->book_id}})" class="btn btn-blue" type="button" disabled>@lang('book.buy_now')</button>
+            <button onclick="buy('paper',{{$book->book_id}})" class="btn btn-border-blue" type="button" disabled>
                 <i class="icons ic-basket"></i>@lang('book.to_cart')</button>
-            <a class="fav__box d-flex align-items-center justify-content-center" onclick="addToSelected({{$book->book_id}})">
+            <a class="fav__box d-flex align-items-center justify-content-center" onclick="addToSelected({{$book->book_id}})" disabled>
                 <i id="heart" class="@if(\Auth::user() && \App\Models\UserSelected::where([['user_id',\Auth::user()->user_id],['book_id',$book->book_id]])->first()) selected @endif fas fa-heart"></i>
             </a>
         </div>
@@ -38,20 +38,20 @@
                 @lang('book.read')
             </a>
         @else
-            <div class="d-flex">
+            <div class="d-flex" style="opacity: 0.3; user-select: none">
                 @if($book->subscribable)
-                    <a class="btn btn-blue" type="button" href="/buy-subscription">Купить подписку</a>
+                    <a class="btn btn-blue" type="button" href="/buy-subscription" disabled>Купить подписку</a>
 
                 @endif
-                <button onclick="buynow('ebook',{{$book_id}})" class="btn btn-blue" type="button">
+                <button onclick="buynow('ebook',{{$book_id}})" class="btn btn-blue" type="button" disabled>
                     @lang('book.buy_now')
                 </button>
             </div>
-            <div class="d-flex">
-                <a class="btn btn-border-blue" type="button" href="/giftpage/{{$book_id}}">
+            <div class="d-flex" style="opacity: 0.3; user-select: none">
+                <a class="btn btn-border-blue" type="button" href="/giftpage/{{$book_id}}" disabled>
                     <i class="icons ic-pod"></i>@lang('book.podarit')
                 </a>
-                <button onclick="buy('ebook',{{$book->book_id}})" class="btn btn-border-blue" type="button">
+                <button onclick="buy('ebook',{{$book->book_id}})" class="btn btn-border-blue" type="button" disabled>
                     <i class="icons ic-basket"></i>@lang('book.to_cart')
                 </button>
             </div>

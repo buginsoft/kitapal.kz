@@ -37,7 +37,8 @@
 
 
 
-                            <a href="/checkout" class="hidden-xs pull-right btn btn-blue btn-lg btn-auto">@lang('basket.checkout')</a>
+{{--                            <a href="/checkout" class="hidden-xs pull-right btn btn-blue btn-lg btn-auto">@lang('basket.checkout')</a>--}}
+                            <a class="hidden-xs pull-right btn btn-blue btn-lg btn-auto" style="opacity: 0.3; user-select: none">@lang('basket.checkout')</a>
 
 
                     @endif
@@ -98,11 +99,12 @@
                                             <button onclick="increasecount({{$item->id}})" class="up_count">+</button>
                                         </div>
                                     </div>
-                                    <div class="inf-basket">
+                                    <div class="inf-basket" style="opacity: 0.3; user-select: none">
                                         <span class="itog-prod">
                                             <span id="price{{$item->id}}">{{$item->price}}</span> ₸</span>
                                         @if($book -> available != null)
-                                            <a href="/checkout" class="btn-prod">@lang('basket.buy')</a>
+                                            <a class="btn-prod">@lang('basket.buy')</a>
+{{--                                            <a href="/checkout" class="btn-prod">@lang('basket.buy')</a>--}}
                                         @else
                                             <h4 style="color: red"><b>@lang('book.not_available')</b></h4>
                                         @endif
