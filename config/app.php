@@ -240,4 +240,20 @@ return [
         'Telegram' => Telegram\Bot\Laravel\Facades\Telegram::class,
         'TLE' => TLE\Facades\TLEFacade::class
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Robokassa Keys
+    |--------------------------------------------------------------------------
+    |
+    | This array of class aliases will be registered when this application
+    | is started. However, feel free to register as many as you wish as
+    | the aliases are "lazy" loaded so they don't hinder performance.
+    |
+    */
+
+    'robokassa_pass1' => env('robokassa_pass1'),
+    'robokassa_pass2' => env('robokassa_pass2'),
+    'robokassa_test_pass1' => env('robokassa_test_pass1'),
+    'robokassa_test_pass2' => env('robokassa_test_pass2'),
 ];
