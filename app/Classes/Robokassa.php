@@ -26,7 +26,7 @@ class Robokassa
 
         $recurring = $recurring ? "&Recurring=true" : "";
 
-        return "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=" . $mrh_login . "&OutSum=" . $out_summ . "&InvoiceID=" . $inv_id . "&Description=" . $inv_desc . "&SignatureValue=" . $crc . "&IsTest=" . $IsTest . "&Recurring=" . $recurring;
+        return "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=" . $mrh_login . "&OutSum=" . $out_summ . "&InvoiceID=" . $inv_id . "&Description=" . $inv_desc . "&SignatureValue=" . $crc . "&IsTest=" . $IsTest . $recurring;
 
     }
 
