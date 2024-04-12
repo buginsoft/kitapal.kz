@@ -49,7 +49,7 @@ class Recurring extends Command
                 $item->debiting_date = Carbon::now()->addMonths(Subscription::find($item->subscription_id)->months);
                 $item->save();
 
-                $id = (int)(rand(1, 9999) . strtotime(date('y-m-d h:i:s')));
+                $id = (int)((rand(1, 1000) + strtotime(date('y-m-d h:i:s'))) % 10000000);
 
                 $this->curl($item, $id);
                 $this->logs();
@@ -80,7 +80,7 @@ class Recurring extends Command
         );
         $response = curl_exec($ch);
 
-        if (curl_errno($ch)) {dd(curl_error($ch));
+        if (curl_errno($ch)) {
             echo 'Ошибка cURL: ' . curl_error($ch);
         }
 
