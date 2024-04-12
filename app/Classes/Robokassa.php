@@ -12,7 +12,7 @@ class Robokassa
     F0Iok8Y3Y0L2eqNtxenf
     aNrCfU66p8F1um4HgQCy*/
 
-    public function getLink($amount , $order_id)
+    public function getLink($amount , $order_id, $recurring )
     {
         $IsTest = 0;
         $mrh_login = "kitapal";
@@ -24,12 +24,15 @@ class Robokassa
 
         $crc = md5("$mrh_login:$out_summ:$inv_id:$mrh_pass1");
 
-        return "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=".$mrh_login."&OutSum=".$out_summ."&InvoiceID=".$inv_id."&Description=".$inv_desc."&SignatureValue=".$crc."&IsTest=".$IsTest;
+        $recurring = $recurring ? "&Recurring=true" : "";
+
+        return "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=" . $mrh_login . "&OutSum=" . $out_summ . "&InvoiceID=" . $inv_id . "&Description=" . $inv_desc . "&SignatureValue=" . $crc . "&IsTest=" . $IsTest . "&Recurring=" . $recurring;
+
     }
 
     public function checkpayment()
     {
-        $mrh_pass2 = env('robokassa_pass2');;
+        $mrh_pass2 = env('robokassa_pass2');
         $out_summ = $_REQUEST["OutSum"];
         $inv_id = $_REQUEST["InvId"];
         $crc = strtoupper($_REQUEST["SignatureValue"]);
