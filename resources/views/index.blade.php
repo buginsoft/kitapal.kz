@@ -397,9 +397,9 @@
                             </div>
                         </div>
                     </div>
-                    <script type="text/javascript">
-                        setTimeout("document.getElementById('work-popup').style.display='block'", 1000)
-                    </script>
+{{--                    <script type="text/javascript">--}}
+{{--                        setTimeout("document.getElementById('work-popup').style.display='block'", 1000)--}}
+{{--                    </script>--}}
                 </div>
                 <div id="bg_popup" class="popup__cont">
                     <div id="popup">

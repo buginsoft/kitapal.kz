@@ -231,9 +231,6 @@ $name = 'name_' . $lang;
                             </li>
                         @endif
                     </ul>
-                    <div style="margin-top: 1rem; background: #e22a2a; color: #fff; padding: 1rem; border-radius: 1rem; display: flex; align-items: center; justify-content: flex-start;">
-                        <span>@lang('book.book_warning')</span>
-                    </div>
                     <div class="tab-content tab-inf-books nav-prices">
                         @if($book->paperbook_price)
                             <div class="tab-pane fade in active" id="tabs1">
