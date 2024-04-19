@@ -13,6 +13,10 @@
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css"/>
 <!-- CSS only -->
     <style>
+        .form-check-input {
+            width: 30px;
+            height: 30px;
+        }
     </style>
 @endpush
 @section('title','')
