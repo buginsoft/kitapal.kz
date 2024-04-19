@@ -50,7 +50,6 @@ class Recurring extends Command
                 $item->save();
 
                 $id = (int)((rand(1, 1000) + strtotime(date('y-m-d h:i:s'))) % 10000000);
-
                 $this->curl($item, $id);
                 $this->logs();
             }
@@ -59,25 +58,25 @@ class Recurring extends Command
 
     protected function curl($item, $new_id)
     {
+
+        $price = $item->subscription->price;
+        $password = config('app.robokassa_pass1');
+        $login = "kitapal";
+
         $data = array(
             'MerchantLogin' => 'kitapal',
             'InvoiceID' => $new_id,
             'PreviousInvoiceID' => $item->order->order_id,
             'Description' => 'Оплата подписки',
-            'SignatureValue' => md5('kitapal:' . $item->subscription->price . ':' . $new_id . ':Receipt:' . config('app.robokassa_pass1') . ':Shp=kitapalkz'),
+            'SignatureValue' => md5("$login:$price:$new_id:$password"),
             'OutSum' => $item->subscription->price
         );
 
-        $postData = json_encode($data);
-
-        $ch = curl_init('https://auth.robokassa.ru/Merchant/Recurring');
+        $ch = curl_init('https://auth.robokassa.kz/Merchant/Recurring');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($postData))
-        );
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
@@ -86,7 +85,9 @@ class Recurring extends Command
 
         curl_close($ch);
 
+        $this->logs($data);
         $this->logs($response);
+
     }
 
     protected function logs($info = null)

@@ -13,6 +13,8 @@ use App\Models\CustomerOrder;
 use App\Models\OrderProducts;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Pusher\Pusher;
 use App\Models\UserBooks;
@@ -151,6 +153,9 @@ class PaymentController extends Controller
 
     public function robokassasuccess(Request $request)
     {
+        Log::channel('wallet')->info(json_encode($request->all($request)));
+
+        //
         \Log::channel('payments')->info($request->all());
         $payment = new Robokassa;
         $result = $payment->checkpayment();
@@ -253,11 +258,30 @@ class PaymentController extends Controller
             return back();
         } else {
             $user = Auth::user();
+
+            $user_subscription = UserSubscription::where('user_id','=',$user->user_id)->get();
+
+            if (isset($user_subscription)){
+
+                foreach ($user_subscription as $sub){
+
+                    $sub->update([
+                        'paid' => 0,
+                        'active'=> 0,
+                        'recurring' => 0,
+                        'debiting_date'=> null
+                    ]);
+
+                }
+            }
+
             $subscription = \App\Models\Subscription::find($request->subscription_id);
             $user_sub = \App\Models\UserSubscription::create([
                 'user_id'=>$user->user_id,
                 'subscription_id'=>$request->subscription_id,
-                'final_date'=>\Carbon\Carbon::now()->addMonths($subscription->months)
+                'final_date'=>\Carbon\Carbon::now()->addMonths($subscription->months),
+                'paid'=>1,
+                'active'=>1
             ]);
 
             $order = \App\Models\CustomerOrder::create([
@@ -267,7 +291,9 @@ class PaymentController extends Controller
                 'subscription_id' => $user_sub->id,
             ]);
 
+            $recurring = false;
             if ($request->recurring != null) {
+                $recurring = true;
                 $user_sub->update([
                     'recurring' => $request->recurring,
                     'debiting_date'=>\Carbon\Carbon::now()->addMonths($subscription->months)
@@ -276,7 +302,7 @@ class PaymentController extends Controller
 
             $payment = new Robokassa;
 
-            return redirect($payment->getLink($subscription->price , $order->order_id));
+            return redirect($payment->getLink($subscription->price , $order->order_id, $recurring));
         }
     }
     public function successpage()
@@ -287,5 +313,24 @@ class PaymentController extends Controller
     public function errorpage()
     {
         return redirect('https://kitapal.kz/?paymentstatus=0');
+    }
+
+    public function unsubscribe($user_id)
+    {
+
+        $user_subscription = UserSubscription::where('user_id','=',$user_id)->get();
+
+        foreach ($user_subscription as $sub){
+
+            $sub->update([
+                'paid' => 0,
+                'active'=> 0,
+                'recurring' => 0,
+                'debiting_date'=> null
+            ]);
+
+        }
+
+        return Redirect::to('/profile');
     }
 }

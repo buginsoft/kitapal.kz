@@ -85,6 +85,8 @@ Route::namespace('Frontend')->group(function () {
         });
 
         Route::post('buy-subscription', 'PaymentController@buysubscription');
+        Route::get('unsubscribe/{user_id}', 'PaymentController@unsubscribe')->name('unsubscribe');
+
 
     });
     Route::get('/basket', 'BasketController@index');

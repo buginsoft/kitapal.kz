@@ -307,9 +307,9 @@
                                                     {{$order->updated_at->format('H:i:s')}}
                                                 </td>
                                                 <td class="text-green">
-                                                        <?php
-                                                        $books = OrderProducts::where('order_id', $order->order_id)->get()
-                                                        ?>
+                                                    <?php
+                                                    $books = OrderProducts::where('order_id', $order->order_id)->get()
+                                                    ?>
 
                                                     @foreach($books as $key=>$book)
 
@@ -394,14 +394,17 @@
                                                 <div class="profile-subscr-block-card">
                                                     <div class="profile-subscr-block-count">
                                                         <h3 class="profile-subscr-block-coin">{{$user->subscription->subscription->price}} ₸</h3>
-                                                        <p class="profile-subscr-block-date">спишутся 2 февраля</p>
+                                                        <p class="profile-subscr-block-date">Активен до : {{$user->subscription->final_date}}</p>
+                                                        @if($user->subscription->debiting_date > '0000-00-00' )
+                                                            <p class="profile-subscr-block-date">Следующие списание: {{$user->subscription->debiting_date}}</p>
+                                                        @endif
                                                     </div>
                                                     <img src="/img/icons/credit-card 1.png" alt="">
                                                 </div>
                                             </div>
                                             <div class="profile-subscr-btns">
                                                 <a href="/buy-subscription" class="view-btn">@lang('Profile.other_tarifs')</a>
-                                                <button class="cancel-btn">Отменить подписку</button>
+                                                <a href="{{ route('unsubscribe',$user->user_id) }}" class="cancel-btn">Отменить подписку</a>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
