@@ -78,15 +78,18 @@ Route::namespace('API')->group(function () {
     Route::get('/getos', 'MainController@getOS');
     Route::get('/getos2', 'MainController@getOS2');
 
-    Route::get('/checkPromo', 'BasketController@checkPromo');   //проверка промокода
-    Route::get('/filter-values', 'BookController@filterValues');   //фильтр значениялары
-    Route::post('add-selected', 'BookController@addToSelected'); //добавить в избранный
+    // Проверка промокода
+    Route::get('/checkPromo', 'BasketController@checkPromo');
+    // Значения фильтров
+    Route::get('/filter-values', 'BookController@filterValues');
+    // Добавить в избранное
+    Route::post('add-selected', 'BookController@addToSelected');
 
     Route::get('publisher', 'BookController@getPublisher');
     Route::get('author', 'BookController@getAuthor');
     Route::get('selected', 'BookController@getSelected')->middleware('auth:api');
 
-    //Сохранить токен для пуш уведомления
+    // Сохранить токен для пуш уведомления
     Route::post('/store-token', 'NotificationController@storeToken');
 
     Route::get('/subscriptions', 'SubscriptionController@getsubscriptions');
@@ -98,10 +101,10 @@ Route::namespace('API')->group(function () {
     Route::get('/category/books', 'TelegramBotApiController@getCategoryBooks');
     Route::get('/book/search', 'TelegramBotApiController@search');
 
-    // Сатып алынган немесе подпискамен китапты ашты
+    // Открыл подписанную или купленную книгу
     Route::get('/user-reading-book', 'ReadingBookController@addReadingBook')->middleware('auth:api');
 
-    // Сатып алынган китапты жапты
+    // Завершил купленную книгу
     Route::get('/user-finished-book', 'ChangeBookStatusController@changeStatus')->middleware('auth:api');
 
     // Мои книги

@@ -81,7 +81,7 @@ function getCartContent(){
 
 function getPaymentLink($amount ,$order_id){
     $payment = new \App\Classes\Robokassa;
-    return $payment->getLink($amount , $order_id);
+    return $payment->getLink($amount , $order_id, true);
 }
 
 function newStoreImg($image, $disk_name, $request)
