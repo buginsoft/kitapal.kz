@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Classes\Robokassa;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SubscriptionResource;
 use App\Models\Subscription;
@@ -12,7 +13,7 @@ class SubscriptionController extends Controller
 
     public function getsubscriptions(Request $request)
     {
-        return new SubscriptionResource( Subscription::orderBy('sort_num')->get(),$request->lang) ;
+        return new SubscriptionResource(Subscription::orderBy('sort_num')->get(), $request->lang);
     }
 
     public function buysubscription(Request $request)
@@ -32,6 +33,13 @@ class SubscriptionController extends Controller
             'total' => $subscription->price,
             'subscription_id' => $user_sub->id
         ]);
-        return ['fields' => getPaymentLink($subscription->price ,  $order->order_id)];
+
+        $user_sub->update([
+            'recurring' => $request->recurring,
+            'debiting_date' => \Carbon\Carbon::now()->addMonths($subscription->months)
+        ]);
+
+        $payment = new Robokassa;
+        return ['fields' => $payment->getLink($subscription->price, $order->order_id, $request->recurring)];
     }
 }
