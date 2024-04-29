@@ -29,9 +29,9 @@ class Robokassa
     public function checkpayment()
     {
         $mrh_pass2 = env('robokassa_pass2');
-        $out_summ = $_REQUEST["OutSum"];
-        $inv_id = $_REQUEST["InvId"];
-        $crc = strtoupper($_REQUEST["SignatureValue"]);
+        $out_summ = request()->OutSum;
+        $inv_id = request()->InvId;
+        $crc = strtoupper(request()->SignatureValue);
 
         $my_crc = strtoupper(md5("$out_summ:$inv_id:$mrh_pass2"));
 

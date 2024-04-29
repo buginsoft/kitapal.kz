@@ -146,9 +146,6 @@ class PaymentController extends Controller
 
     public function robokassasuccess(Request $request)
     {
-        Log::channel('wallet')->info(json_encode($request->all($request)));
-
-        //
         \Log::channel('payments')->info($request->all());
         $payment = new Robokassa;
         $result = $payment->checkpayment();
@@ -156,7 +153,6 @@ class PaymentController extends Controller
 
         if ($result['status']) {
             $order = CustomerOrder::find($result['inv_id']);
-
             if ($order->paid == 0) {
                 if (!is_null($order->subscription_id)) {
                     $order->update(['paid' => '1', 'status_id' => '1', 'is_delivered' => 1]);
