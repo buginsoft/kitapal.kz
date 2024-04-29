@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Helpers;
 use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
+use Intervention\Image\Facades\Image;
 
 Route::get('loginasuser/{user_id}', function ($user_id) {
     Auth::loginUsingId($user_id);
@@ -142,7 +146,6 @@ Route::get('/favicon', function () {
 Route::get('/thumb', function () {
     $images = \App\Models\BookImages::all();
     foreach ($images as $item) {
-
         $path = storage_path() . '/app/image/' . substr($item->path, 7);
         $resize = Image::make($path)->fit(180, 250)->encode('png');
         $hash = md5($resize->__toString());
@@ -151,7 +154,6 @@ Route::get('/thumb', function () {
         $result = '/thumbnail/' . $path;
         $item->thumbnail180_250 = $result;
         $item->save();
-
     }
 });
 
@@ -166,9 +168,9 @@ Route::post('discount-to-all-books', function (\Illuminate\Http\Request $request
         foreach (\App\Models\Book::all() as $item) {
             $item->sale_percentage = $request->percentage;
             $item->save();
-
         }
     }
+
     return back();
 });
 
@@ -201,7 +203,7 @@ Route::get('testemail', function () {
 
 
     $parameters = ['name' => $to_name, 'order_id' => $order->order_id, 'order_items' => $order_items, 'total' => 5000];
-    \Mail::send('mails.successpurchased', $parameters,
+    Mail::send('mails.successpurchased', $parameters,
         function ($message) use ($to_name, $to_email, $subject) {
             $message->to($to_email, $to_name)
                 ->subject($subject);
@@ -217,7 +219,7 @@ Route::get('allaudio', function () {
     $comment = 'Mmm';
     $mail_subject = app()->getLocale() == 'ru' ? 'Получите книгу' : 'Сізге кітап сыйлады';
 
-    \App\Http\Helpers::sendMail($mail_subject, $to_name, $to_email, 'mails.gift', 60380, ['token' => 'M4w7QUPjDIQZDTNY8NDNEoAx7RcFzj7D', 'order_id' => 60380, 'comment' => $comment]);
+    Helpers::sendMail($mail_subject, $to_name, $to_email, 'mails.gift', 60380, ['token' => 'M4w7QUPjDIQZDTNY8NDNEoAx7RcFzj7D', 'order_id' => 60380, 'comment' => $comment]);
 });
 
 //ckeditor

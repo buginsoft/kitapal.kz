@@ -5,7 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Classes\Robokassa;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SubscriptionResource;
+use App\Models\CustomerOrder;
 use App\Models\Subscription;
+use App\Models\UserSubscription;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
@@ -19,15 +22,15 @@ class SubscriptionController extends Controller
     public function buysubscription(Request $request)
     {
         $user = auth()->guard('api')->user();
-        $subscription = Subscription::find($request->subscription_id);
+        $subscription = Subscription::query()->find($request->subscription_id);
 
-        $user_sub = \App\Models\UserSubscription::create([
+        $user_sub = UserSubscription::query()->create([
             'user_id' => $user->user_id,
             'subscription_id' => $request->subscription_id,
-            'final_date' => \Carbon\Carbon::now()->addMonths($subscription->months)
+            'final_date' => Carbon::now()->addMonths($subscription->months)
         ]);
 
-        $order = \App\Models\CustomerOrder::create([
+        $order = CustomerOrder::query()->create([
             'user_id' => $user->user_id,
             'is_delivered' => 0,
             'total' => $subscription->price,
@@ -36,7 +39,7 @@ class SubscriptionController extends Controller
 
         $user_sub->update([
             'recurring' => $request->recurring,
-            'debiting_date' => \Carbon\Carbon::now()->addMonths($subscription->months)
+            'debiting_date' => Carbon::now()->addMonths($subscription->months)
         ]);
 
         $payment = new Robokassa;

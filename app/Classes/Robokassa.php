@@ -1,8 +1,5 @@
 <?php namespace App\Classes;
 
-use App\Models\UserSubscription;
-use Illuminate\Support\Env;
-
 class Robokassa
 {
     /*боевой
@@ -12,7 +9,7 @@ class Robokassa
     F0Iok8Y3Y0L2eqNtxenf
     aNrCfU66p8F1um4HgQCy*/
 
-    public function getLink($amount , $order_id, $recurring )
+    public function getLink($amount, $order_id, $recurring = false)
     {
         $IsTest = 0;
         $mrh_login = "kitapal";
@@ -27,7 +24,6 @@ class Robokassa
         $recurring = $recurring ? "&Recurring=true" : "";
 
         return "https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=" . $mrh_login . "&OutSum=" . $out_summ . "&InvoiceID=" . $inv_id . "&Description=" . $inv_desc . "&SignatureValue=" . $crc . "&IsTest=" . $IsTest . $recurring;
-
     }
 
     public function checkpayment()
@@ -40,9 +36,9 @@ class Robokassa
         $my_crc = strtoupper(md5("$out_summ:$inv_id:$mrh_pass2"));
 
         if ($my_crc == $crc) {
-            return ['status'=>true,'inv_id'=>$inv_id];
+            return ['status' => true, 'inv_id' => $inv_id];
         } else {
-            return ['status'=>false];
+            return ['status' => false];
         }
     }
 }

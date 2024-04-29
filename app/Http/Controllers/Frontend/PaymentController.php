@@ -2,29 +2,23 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Classes\Promocode;
+use App\Classes\Robokassa;
 use App\Http\Controllers\Controller;
-use App\Models\Page;
-use App\Models\Address;
-use App\Models\User;
+use App\Http\Helpers;
+use App\Models\CustomerOrder;
+use App\Models\OrderProducts;
+use App\Models\Promocodes;
+use App\Models\Subscription;
+use App\Models\UserBooks;
 use App\Models\UserSubscription;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\CustomerOrder;
-use App\Models\OrderProducts;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Pusher\Pusher;
-use App\Models\UserBooks;
-use App\Http\Helpers;
-use App\Models\Book;
-use App\Rules\CheckPriceChange;
-use App\Rules\CheckTotalPrice;
-use Auth;
-use App\Rules\checkTotalprice2;
-use App\Classes\Robokassa;
 
 class PaymentController extends Controller
 {
@@ -37,13 +31,12 @@ class PaymentController extends Controller
         $order = CustomerOrder::find($request->order_id);
         $cart = $this->getCart();
 
-        //Курьер мен почтада буган келгенге дейн ценасын и типын сактап кояды . КУрьер мен почта болса delivery_type келмиды
+        // Курьер мен почтада буган келгенге дейн ценасын и типын сактап кояды . КУрьер мен почта болса delivery_type келмиды
         if ($request->has('delivery_type')) {
-            if($request->delivery_type=='pickup'){
-                $order->deliveryprice=0;
-                $order->delivery_type=$request->delivery_type;
-            }
-            else{
+            if ($request->delivery_type == 'pickup') {
+                $order->deliveryprice = 0;
+                $order->delivery_type = $request->delivery_type;
+            } else {
                 dd('Только самовывоз должен быть');
             }
         }
@@ -91,17 +84,17 @@ class PaymentController extends Controller
         }
 
         $order->total = $request->price;
-        $payment_amount = $request->price+$order->deliveryprice;
+        $payment_amount = $request->price + $order->deliveryprice;
 
         /*---------------------------------------Проверка промокода----------------------------------------------------*/
-        if($order->promocode_id) {
-            $promocode = new \App\Classes\Promocode;
-            $promocodeer=\App\Models\Promocodes::find($order->promocode_id);
+        if ($order->promocode_id) {
+            $promocode = new Promocode;
+            $promocodeer = Promocodes::find($order->promocode_id);
             $result = $promocode->check($promocodeer->code);
 
-            if($result['success']=='true') {
-                $order->price_with_promocode=$cart->getTotal()*(100-$result['percentage'])/100;
-                $payment_amount = ($cart->getTotal()*(100-$result['percentage'])/100)+$order->deliveryprice;
+            if ($result['success'] == 'true') {
+                $order->price_with_promocode = $cart->getTotal() * (100 - $result['percentage']) / 100;
+                $payment_amount = ($cart->getTotal() * (100 - $result['percentage']) / 100) + $order->deliveryprice;
             } else {
                 dd($result['error']);
             }
@@ -109,21 +102,21 @@ class PaymentController extends Controller
         /*-------------------------------------------------------------------------------------------------------------*/
         $order->save();
 
-        //Если покупает без регистраций .
-        if(is_null($user) && $order->delivery_type=='pickup'){
-            $order->user_name=$request->fio;
-            $order->user_phone=$request->phone;
+        // Если покупает без регистраций .
+        if (is_null($user) && $order->delivery_type == 'pickup') {
+            $order->user_name = $request->fio;
+            $order->user_phone = $request->phone;
             $order->save();
         }
-        $this->creteOrderProducts($request,$cart);
+        $this->creteOrderProducts($request, $cart);
         $payment = new Robokassa;
 
-        return redirect($payment->getLink($payment_amount , $order->order_id));
+        return redirect($payment->getLink($payment_amount, $order->order_id));
     }
 
-    public function creteOrderProducts(Request $request,$cart)
+    public function creteOrderProducts(Request $request, $cart)
     {
-        if(!request()->filled('is_gift')){
+        if (!request()->filled('is_gift')) {
             foreach ($cart->getContent() as $item) {
                 OrderProducts::create([
                     'order_id' => $request->order_id,
@@ -133,7 +126,7 @@ class PaymentController extends Controller
                     'unitprice' => $item['price']
                 ]);
             }
-        } else{
+        } else {
             OrderProducts::create([
                 'order_id' => $request->order_id,
                 'product_id' => $request->book[0],
@@ -146,7 +139,7 @@ class PaymentController extends Controller
 
     public function getCart()
     {
-        $session_id = Auth::user()?Auth::user()->user_id:session()->getId();
+        $session_id = Auth::user() ? Auth::user()->user_id : session()->getId();
 
         return \Cart::session($session_id);
     }
@@ -161,18 +154,18 @@ class PaymentController extends Controller
         $result = $payment->checkpayment();
         \Log::channel('payments')->info($result);
 
-        if($result['status']) {
+        if ($result['status']) {
             $order = CustomerOrder::find($result['inv_id']);
 
             if ($order->paid == 0) {
                 if (!is_null($order->subscription_id)) {
                     $order->update(['paid' => '1', 'status_id' => '1', 'is_delivered' => 1]);
-                    \App\Models\UserSubscription::find($order->subscription_id)->update(['active' => 1, 'paid' => 1]);
+                    UserSubscription::find($order->subscription_id)->update(['active' => 1, 'paid' => 1]);
                 } else {
                     $order->update(['paid' => '1', 'status_id' => '1']);
 
                     //----------------------Если использовал промокод то удалить промокод-------------------------------/
-                    $promo = new \App\Classes\Promocode;
+                    $promo = new Promocode;
                     $promo->used($order->user_id, $order->promocode_id);
                     //--------------------------------------------------------------------------------------------------/
 
@@ -225,10 +218,10 @@ class PaymentController extends Controller
     public function saveDeliveryPrice(Request $request)
     {
         $order = CustomerOrder::find($request->order_id);
-        $delivery_price =  \App\Models\DeliveryPrice::where('description',$request->area)->first();
+        $delivery_price = \App\Models\DeliveryPrice::where('description', $request->area)->first();
 
-        if($order){
-            if($delivery_price) {
+        if ($order) {
+            if ($delivery_price) {
                 if ($order->update(['deliveryprice' => $delivery_price->price])) {
                     return 'true';
                 } else {
@@ -240,51 +233,47 @@ class PaymentController extends Controller
         } else {
             return 'false';
         }
-
     }
 
     public function buysubscription(Request $request)
     {
-        if($request->has('manually') && $request->manually=='1' && \Auth::user()->user_role_id){
-            $subscription = \App\Models\Subscription::find($request->subscription_id);
-            \App\Models\UserSubscription::create([
-                'user_id'=>$request->to_user,
-                'subscription_id'=>$request->subscription_id,
-                'final_date'=>\Carbon\Carbon::now()->addMonths($subscription->months),
-                'paid'=>1,
-                'active'=>1
+        if ($request->has('manually') && $request->manually == '1' && \Auth::user()->user_role_id) {
+            $subscription = Subscription::find($request->subscription_id);
+            UserSubscription::create([
+                'user_id' => $request->to_user,
+                'subscription_id' => $request->subscription_id,
+                'final_date' => Carbon::now()->addMonths($subscription->months),
+                'paid' => 1,
+                'active' => 1
             ]);
 
             return back();
         } else {
             $user = Auth::user();
 
-            $user_subscription = UserSubscription::where('user_id','=',$user->user_id)->get();
+            $user_subscription = UserSubscription::where('user_id', '=', $user->user_id)->get();
 
-            if (isset($user_subscription)){
-
-                foreach ($user_subscription as $sub){
-
+            if (isset($user_subscription)) {
+                foreach ($user_subscription as $sub) {
                     $sub->update([
                         'paid' => 0,
-                        'active'=> 0,
+                        'active' => 0,
                         'recurring' => 0,
-                        'debiting_date'=> null
+                        'debiting_date' => null
                     ]);
-
                 }
             }
 
-            $subscription = \App\Models\Subscription::find($request->subscription_id);
-            $user_sub = \App\Models\UserSubscription::create([
-                'user_id'=>$user->user_id,
-                'subscription_id'=>$request->subscription_id,
-                'final_date'=>\Carbon\Carbon::now()->addMonths($subscription->months),
-                'paid'=>1,
-                'active'=>1
+            $subscription = Subscription::find($request->subscription_id);
+            $user_sub = UserSubscription::create([
+                'user_id' => $user->user_id,
+                'subscription_id' => $request->subscription_id,
+                'final_date' => Carbon::now()->addMonths($subscription->months),
+                'paid' => 1,
+                'active' => 1
             ]);
 
-            $order = \App\Models\CustomerOrder::create([
+            $order = CustomerOrder::create([
                 'user_id' => $user->user_id,
                 'is_delivered' => 0,
                 'total' => $subscription->price,
@@ -296,15 +285,16 @@ class PaymentController extends Controller
                 $recurring = true;
                 $user_sub->update([
                     'recurring' => $request->recurring,
-                    'debiting_date'=>\Carbon\Carbon::now()->addMonths($subscription->months)
+                    'debiting_date' => Carbon::now()->addMonths($subscription->months)
                 ]);
             }
 
             $payment = new Robokassa;
 
-            return redirect($payment->getLink($subscription->price , $order->order_id, $recurring));
+            return redirect($payment->getLink($subscription->price, $order->order_id, $recurring));
         }
     }
+
     public function successpage()
     {
         return redirect('https://kitapal.kz/?paymentstatus=1');
@@ -317,18 +307,15 @@ class PaymentController extends Controller
 
     public function unsubscribe($user_id)
     {
+        $user_subscription = UserSubscription::where('user_id', '=', $user_id)->get();
 
-        $user_subscription = UserSubscription::where('user_id','=',$user_id)->get();
-
-        foreach ($user_subscription as $sub){
-
+        foreach ($user_subscription as $sub) {
             $sub->update([
                 'paid' => 0,
-                'active'=> 0,
+                'active' => 0,
                 'recurring' => 0,
-                'debiting_date'=> null
+                'debiting_date' => null
             ]);
-
         }
 
         return Redirect::to('/profile');

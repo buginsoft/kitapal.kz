@@ -1,10 +1,9 @@
 <?php
 
-use Pusher\Pusher;
 use Illuminate\Support\Facades\Auth;
-use Gloudemans\Shoppingcart\Facades\Cart;
+use Pusher\Pusher;
 
-if (! function_exists('send_push')) {
+if (!function_exists('send_push')) {
     function send_push($data)
     {
         $notification = new \App\Http\Controllers\API\NotificationController;
@@ -12,7 +11,7 @@ if (! function_exists('send_push')) {
     }
 }
 
-if (! function_exists('pusher')) {
+if (!function_exists('pusher')) {
     function pusher($data)
     {
         $options = array(
@@ -31,20 +30,19 @@ if (! function_exists('pusher')) {
     }
 }
 //Может ли юзер читать эту книгу
-function check_access($user,$book_id)
+function check_access($user, $book_id)
 {
-    if( $book = \App\Models\Book::find($book_id)){
+    if ($book = \App\Models\Book::find($book_id)) {
         $path = explode("/", $book->ebook_path);
         $last = end($path);
-    }
-    else{
+    } else {
         return ['success' => false];
     }
-    if($book->free){
+    if ($book->free) {
         return ['success' => true, 'book' => $book, 'last' => $last];
     }
     if ($user) {
-        if (\App\Models\UserBooks::where([['ub_user_id', $user->user_id], ['ub_book_id', $book_id], ['type','ebook']])->first() || ($book->subscribable && \App\Models\UserSubscription::where([['user_id', $user->user_id], ['active', 1]])->count())) {
+        if (\App\Models\UserBooks::where([['ub_user_id', $user->user_id], ['ub_book_id', $book_id], ['type', 'ebook']])->first() || ($book->subscribable && \App\Models\UserSubscription::where([['user_id', $user->user_id], ['active', 1]])->count())) {
             return ['success' => true, 'book' => $book, 'last' => $last];
         }
     }
@@ -52,36 +50,40 @@ function check_access($user,$book_id)
 }
 
 //Может ли юзер читать эту книгу
-function check_access_audio($user,$book_id)
+function check_access_audio($user, $book_id)
 {
-    if( $book = \App\Models\Book::find($book_id)){
+    if ($book = \App\Models\Book::find($book_id)) {
         $path = explode("/", $book->ebook_path);
         $last = end($path);
-    }
-    else{
+    } else {
         return ['success' => false];
     }
-    if($book->free){
+    if ($book->free) {
         return ['success' => true, 'book' => $book, 'last' => $last];
     }
     if ($user) {
-        if (\App\Models\UserBooks::where([['ub_user_id', $user->user_id], ['ub_book_id', $book_id], ['type','audio']])->first() || ($book->subscribable && \App\Models\UserSubscription::where([['user_id', $user->user_id], ['active', 1]])->count())) {
+        if (\App\Models\UserBooks::where([['ub_user_id', $user->user_id], ['ub_book_id', $book_id], ['type', 'audio']])->first() || ($book->subscribable && \App\Models\UserSubscription::where([['user_id', $user->user_id], ['active', 1]])->count())) {
             return ['success' => true, 'book' => $book, 'last' => $last];
         }
     }
     return ['success' => false];
 }
-function getCart(){
-    $session_id = Auth::user()?Auth::user()->user_id:session()->getId();
+
+function getCart()
+{
+    $session_id = Auth::user() ? Auth::user()->user_id : session()->getId();
     return \Cart::session($session_id);
 }
-function getCartContent(){
+
+function getCartContent()
+{
     return getCart()->getContent();
 }
 
-function getPaymentLink($amount ,$order_id){
+function getPaymentLink($amount, $order_id)
+{
     $payment = new \App\Classes\Robokassa;
-    return $payment->getLink($amount , $order_id, true);
+    return $payment->getLink($amount, $order_id);
 }
 
 function newStoreImg($image, $disk_name, $request)
@@ -99,9 +101,9 @@ function newStoreImg($image, $disk_name, $request)
     \Illuminate\Support\Facades\Storage::disk($disk_name)->put($image_name, \Illuminate\Support\Facades\File::get($image));
 
     if ($disk_name == 'avatar') {
-        $result = '/media_avatar' .$image_name;
-    }else{
-        $result = '/media' .$image_name;
+        $result = '/media_avatar' . $image_name;
+    } else {
+        $result = '/media' . $image_name;
     }
     return $result;
 }
