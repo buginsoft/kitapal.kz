@@ -80,8 +80,10 @@ Route::namespace('API')->group(function () {
 
     // Проверка промокода
     Route::get('/checkPromo', 'BasketController@checkPromo');
+
     // Значения фильтров
     Route::get('/filter-values', 'BookController@filterValues');
+
     // Добавить в избранное
     Route::post('add-selected', 'BookController@addToSelected');
 
@@ -94,7 +96,6 @@ Route::namespace('API')->group(function () {
 
     Route::get('/subscriptions', 'SubscriptionController@getsubscriptions');
     Route::post('/subscription', 'SubscriptionController@buysubscription')->middleware('auth:api');;
-
 
     // TelegramBot api
     Route::get('/categories', 'TelegramBotApiController@getCategories');
